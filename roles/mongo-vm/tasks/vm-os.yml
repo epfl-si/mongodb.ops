@@ -1,0 +1,7 @@
+
+- name: upgrade all packages
+  ansible.builtin.dnf: 
+    name: '*'
+    state: latest
+  when: >- 
+    "vm.os.upgrade" in ansible_run_tags

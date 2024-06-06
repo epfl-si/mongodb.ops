@@ -8,4 +8,16 @@
     - vm
     - vm.access
 
+- include_tasks:
+    file: vm-os.yml
+    apply:
+      tags:
+        - vm
+        - vm.os
+        - vm.os.upgrade
+  tags:
+    - vm
+    - vm.os
+    - vm.os.upgrade
+
     
