@@ -1,0 +1,7 @@
+- name: "Access via ssh"
+  hosts: vms
+  gather_facts: no
+  vars_files:
+    - vars/access-vars.yml
+  roles:
+    - role: roles/mongo-vm

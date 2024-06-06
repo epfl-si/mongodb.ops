@@ -1,0 +1,11 @@
+- tags: always
+  include_vars: vars/access-vars.yml
+
+- name: "`{{ ansible_user }}`'s `.ssh/authorized_keys`"
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    comment: "{{ item }}"
+    key: >
+      {{ ssh_public_keys[item] | coerce_list | join(" ") }}
+  with_items: >-
+    {{ ssh_acls[inventory_environment] }}

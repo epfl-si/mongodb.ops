@@ -1,0 +1,11 @@
+- include_tasks:
+    file: vm-access.yml
+    apply:
+      tags:
+        - vm
+        - vm.access
+  tags:
+    - vm
+    - vm.access
+
+    
