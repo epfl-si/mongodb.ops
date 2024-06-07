@@ -5,7 +5,7 @@ k0s_cluster_nodes:
   controllers: >-
     {{ _k0s_controllers }}
   workers: >-
-    {{ _k0s_workers }}
+    {{ _k0s_workers | reject('in', _k0s_controllers) }}
 
 k0s_version: 1.25.2+k0s.0
 k0s_release_download_url: https://github.com/k0sproject/k0s/releases
