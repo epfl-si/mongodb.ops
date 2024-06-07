@@ -3,3 +3,12 @@
   gather_facts: no
   roles:
     - role: roles/mongo-vm
+
+- name: Install k0s
+  hosts: vms
+  pre_tasks:
+   - name: vars/k0s-vars.yml
+     tags: always
+     include_vars: vars/k0s-vars.yml
+  roles:
+   - role: bodsch.k0s

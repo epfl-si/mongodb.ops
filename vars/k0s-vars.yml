@@ -1,0 +1,41 @@
+# https://github.com/bodsch/ansible-k0s/tree/main?tab=readme-ov-file#usage
+k0s_cluster_nodes:
+  initial_controller: >-
+    {{ _k0s_controllers[0] }}
+  controllers: >-
+    {{ _k0s_controllers }}
+  workers: >-
+    {{ _k0s_workers }}
+
+k0s_version: 1.25.2+k0s.0
+k0s_release_download_url: https://github.com/k0sproject/k0s/releases
+
+k0s_system_user: k0s
+k0s_system_group: k0s
+
+k0s_config_dir: /etc/k0s
+k0s_data_dir: /var/lib/k0s
+k0s_libexec_dir: /usr/libexec/k0s
+
+k0s_direct_download: false
+
+k0s_worker_on_controller: false
+
+k0s_force: false
+k0s_debug: false
+k0s_verbose: false
+
+k0s_extra_arguments: {}
+
+k0s_config_overwrites: {}
+
+k0s_token_expiry: "15m"
+
+k0s_artifacts_dir: "./k0s-cache"
+
+_k0s_controllers: >-
+     {{ hostvars.values() | selectattr('k0s_role_controller', 'true')
+     |map(attribute='inventory_hostname') }}
+_k0s_workers: >-
+     {{ hostvars.values() | selectattr('k0s_role_worker', 'true')
+     |map(attribute='inventory_hostname') }}

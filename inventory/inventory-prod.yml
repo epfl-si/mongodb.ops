@@ -5,7 +5,11 @@ all:
         vms_prod:
           hosts:
             itsidevfsd0034.xaas.epfl.ch:
+              k0s_role_worker: true
+              k0s_role_controller: true
             itsidevfsd0035.xaas.epfl.ch:
+              k0s_role_worker: true
+              k0s_role_controller: true
           vars:
             inventory_environment: prod
             ansible_user: root

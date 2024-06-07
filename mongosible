@@ -20,6 +20,7 @@ ensure_suitcase () {
         curl https://raw.githubusercontent.com/epfl-si/ansible.suitcase/master/install.sh | \
             SUITCASE_DIR=$PWD/ansible-deps-cache \
             SUITCASE_ANSIBLE_VERSION=10.0.1 \
+            SUITCASE_ANSIBLE_REQUIREMENTS=./requirements.yml \
             bash -x
     fi
     . ansible-deps-cache/lib.sh
