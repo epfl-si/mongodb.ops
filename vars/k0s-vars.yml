@@ -4,8 +4,9 @@ k0s_cluster_nodes:
     {{ _k0s_controllers[0] }}
   controllers: >-
     {{ _k0s_controllers }}
-  workers: >-
-    {{ _k0s_workers | reject('in', _k0s_controllers) }}
+  workers: []  # ... But see below
+
+k0s_worker_on_controller: true
 
 k0s_version: 1.25.2+k0s.0
 k0s_release_download_url: https://github.com/k0sproject/k0s/releases
@@ -28,8 +29,6 @@ k0s_libexec_dir: /usr/libexec/k0s
 k0s_delegate_to: "{{ omit }}"  # i.e., don't delegate
 k0s_direct_download: true
 
-k0s_worker_on_controller: false
-
 k0s_force: false
 k0s_debug: false
 k0s_verbose: false
@@ -41,6 +40,7 @@ k0s_config_overwrites: {}
 k0s_token_expiry: "15m"
 
 k0s_artifacts_dir: "./k0s-cache"
+k0s_local_tmp_directory: "."
 
 _k0s_controllers: >-
      {{ hostvars.values() | selectattr('k0s_role_controller', 'true')
