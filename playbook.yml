@@ -25,3 +25,21 @@
      include_vars: vars/k0s-vars.yml
   roles:
    - role: epfl-si.k0s
+
+- name: Uninstall k0s
+  gather_facts: no
+  hosts: vms
+  tasks:
+   - when: >-
+       'k0s_reset' in ansible_run_tags
+     block:
+     - name: vars/k0s-vars.yml
+       tags: always
+       include_vars: vars/k0s-vars.yml
+     - tags: always
+       include_role:
+         name: epfl-si.k0s
+         tasks_from: reset.yml
+         apply:
+           tags:
+             - k0s_reset
