@@ -11,4 +11,4 @@
      tags: always
      include_vars: vars/k0s-vars.yml
   roles:
-   - role: bodsch.k0s
+   - role: epfl-si.k0s

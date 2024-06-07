@@ -27,7 +27,15 @@ ensure_suitcase () {
     ensure_ansible_runtime
 }
 
+ensure_k0s_role () {
+  if [ ! -d ansible-deps-cache/roles/epfl-si.k0s ]; then
+     mkdir -p ansible-deps-cache/roles || true
+     git clone git@github.com:epfl-si/ansible-k0s.git ansible-deps-cache/roles/epfl-si.k0s
+  fi
+}
+
 ensure_suitcase
+ensure_k0s_role
 
 declare -a ansible_args
 inventory_mode="test"
