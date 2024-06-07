@@ -3,4 +3,5 @@ collections:
    version: 2.0.0
  - name: bodsch.scm
    version: 0.10.2
+ - name: ansible.posix
 roles: []  # mongosible installs our forked version of bodsch.k0s
