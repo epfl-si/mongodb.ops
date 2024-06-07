@@ -4,6 +4,19 @@
   roles:
     - role: roles/mongo-vm
 
+- name: "No firewalls, no SELinux"
+  hosts: vms
+  gather_facts: no
+  tasks:
+  - tags: [ vm, vm.security ]
+    ansible.posix.selinux:
+      state: disabled
+  - tags: [ vm, vm.security ]
+    ansible.builtin.service:
+      name: firewalld
+      state: stopped
+      enabled: false
+
 - name: Install k0s
   hosts: vms
   pre_tasks:
