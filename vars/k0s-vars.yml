@@ -10,6 +10,14 @@ k0s_cluster_nodes:
 k0s_version: 1.25.2+k0s.0
 k0s_release_download_url: https://github.com/k0sproject/k0s/releases
 
+k0s_requirements:
+  - bash-completion
+  # bridge-utils removed — Not used by the playbook, not sure why the
+  # playbook uses it in the first place - And it doesn't exist (anymore)
+  # on RH9.
+  - kmod
+  - iptables
+
 k0s_system_user: k0s
 k0s_system_group: k0s
 
