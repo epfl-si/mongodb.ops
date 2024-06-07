@@ -9,6 +9,7 @@ _access_test_and_prod:
   - nicolas.borboen@epfl.ch
   - lindo.duratti@epfl.ch
   - sami.panseri@epfl.ch
+  - rosa.maggi@epfl.ch
 
 _access_test_only: []
 
@@ -27,3 +28,5 @@ ssh_public_keys:
     - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDU2EbGn2eAh0Xbb+FWMhv943oX6B5PuFCuVciY3ZwtarC/LewheCqYhq+A2sFOFCEAlP3063Racw47rjgI09WQICkcIZBMavqyPEPSufwL0X8llZ2qZAVU+cx/lwQgt57YaD6KqS3r4hHkVhjwOYuoHADMR1YHzIS6NQx9Jg2otMX+L0c453yVh1hTB/O2lxWjDgSlg8cNZRtHpXU1T0ZxBv2ogL5u2W/eCvyP5E23eUyEL1+/6ZvgWkzpYBcMrtlaYy6eQ9i5OcE7yVs/itHu4HCBMVUqxM/qTnfxzVvFaX+Kyu+SUi1PN+FJfwUAaZBZJT2ujF1Ep/VpCBVDws3ITeMD6/DwouaarGfC0AWqsvrVSie9AeU9RgF/J+d2XRN6hPZXNbHDND4AxCIRNLMNPOzhMv5+3Bhsqf7yKJPPM5i7X8iVtspJPdMqB5E4izi1wtnDSKBkrBbkTxig/+XUcTFUBlK6BvE4msX5HxItXpsPhe7IRNpLCuEJlkq//QU=
   sami.panseri@epfl.ch:
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGSeTmI1o6j0mymv44sVdVM9SKah7UzTXOVT7qHebibR
+  rosa.maggi@epfl.ch: |
+    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGhg3vUzbHVZ7roxfWrBH6pIZUhOMvNPa9bChhIOnHvFdEoBwzDl0IT4i3FGAv/7XufCQ4Glsp+FOkfq2Oy8RXyC/l6BJByjizd0f2puJOKSV0TXsmDJLD4EmZ1g9p3gbIysO9pk2iyzP96Z9QkOFMAqY55F2a+I/eVXVi++WmT6ggBrjFOL2o8p+CXONtEuTVodltHFPurg/l3RahugNrDNCxW1TqdDOX9l4+Mqba8rxP9UcfvWT7wzAtu3gTYIiGjPA+lpC2iKJ+dZIP1V3CkQaWuqmemd5BDT3u0Wd7ktk6llIlu7Kec11PAc8rCkUSVzNkgiWSNe3fCin0FgUD
