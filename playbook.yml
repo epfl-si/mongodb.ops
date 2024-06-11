@@ -25,6 +25,7 @@
      include_vars: vars/k0s-vars.yml
   roles:
    - role: epfl-si.k0s
+     tags: k0s
 
 - name: Uninstall k0s
   gather_facts: no
