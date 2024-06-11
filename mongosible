@@ -62,8 +62,8 @@ download_k0s_credentials () {
       while read hostname; do
         creds="$(ssh root@$(grep xaas.epfl.ch inventory/inventory-${kubectl_target_cluster}.yml | head -1 | sed -E -n 's/^[[:space:]]*([a-zA-Z0-9.-]+\.[a-zA-Z]+):.*$/\1/p' ) k0s kubeconfig admin || true)"
         if [ -n "$creds" ]; then
-           echo "$creds" > k0s_credentials/kubeconfig
-           echo k0s_credentials/kubeconfig
+           echo "$creds" > k0s_credentials/kubeconfig-$kubectl_target_cluster
+           echo k0s_credentials/kubeconfig-$kubectl_target_cluster
            break
         fi
       done
