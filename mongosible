@@ -13,6 +13,10 @@ Usage:
     Install the suitcase, then run Ansible with the specified arguments. This is the
     default mode of operation.
 
+  $0 kubeconfig [ --prod ]
+
+    Retrieve the kube-admin credentials from the working cluster.
+
   $0 kubectl [ --prod ] [...]
 
     Run the kubectl command with the specified arguments, and provide it with
@@ -88,6 +92,10 @@ while [ "$#" -gt 0 ]; do
       exec_mode=kubectl
       shift
       ;;
+    kubeconfig)
+      exec_mode=kubeconfig
+      shift
+      ;;
     *)
       remaining_args+=("$1")
       shift ;;
@@ -107,6 +115,24 @@ case "$exec_mode" in
     export KUBECONFIG="$(download_k0s_credentials)"
     exec kubectl "${remaining_args[@]}"
     ;;
+  kubeconfig)
+    kubeconfig="$(download_k0s_credentials)"
+    warn <<PLEASE_SET_KUBECONFIG
+
+Success - Kubernetes credentials are now available in $kubeconfig
+
+Please set the KUBECONFIG variable accordingly, e.g.
+
+   export KUBECONFIG=$kubeconfig
+
+before running your Kubernetes client.
+
+💡 Lens / OpenLens want you to copy and paste the contents of
+that file into a dialog that pops up with File → Add Cluster...
+instead of setting the environment variable.
+
+PLEASE_SET_KUBECONFIG
+    exit 0;;
   *)
     ansible-playbook $(inventories) playbook.yml "${remaining_args[@]}"
     ;;
