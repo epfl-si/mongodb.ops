@@ -14,3 +14,14 @@ all:
             inventory_environment: test
             ansible_user: root
             ansible_python_interpreter: /usr/bin/python3.9
+    k0s_clusters:
+      children:
+        k0s_clusters_test:
+          hosts:
+            k0s-mongodb-test:
+          vars:
+            inventory_environment: test
+            # Those are *not* actual ssh targets, as is the default
+            # for Ansible:
+            ansible_connection: local
+            ansible_python_interpreter: "{{ ansible_playbook_python }}"
