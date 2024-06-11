@@ -10,6 +10,15 @@ Usage:
   $0 --list-tags
   $0 [ -t sometag ] [ ... ]
 
+    Install the suitcase, then run Ansible with the specified arguments. This is the
+    default mode of operation.
+
+  $0 kubectl [ --prod ] [...]
+
+    Run the kubectl command with the specified arguments, and provide it with
+    kube-admin credentials from the working cluster.
+
+
 HELP_MSG
 }
 
@@ -34,20 +43,53 @@ ensure_k0s_role () {
   fi
 }
 
+ensure_kubectl () {
+  if which kubectl >/dev/null; then return 0; fi
+  fatal <<'PLEASE_INSTALL_KUBECTL'
+
+For this invocation to run, The `kubectl` command must be available
+in the $PATH. Please install it using the documentation:
+
+   https://kubernetes.io/docs/tasks/tools/
+
+PLEASE_INSTALL_KUBECTL
+}
+
+download_k0s_credentials () {
+  if ! [ -d k0s_credentials ]; then mkdir k0s_credentials; fi
+  grep xaas.epfl.ch inventory/inventory-${kubectl_target_cluster}.yml | \
+      sed -E -n 's/^[[:space:]]*([a-zA-Z0-9.-]+\.[a-zA-Z]+):.*$/\1/p' | \
+      while read hostname; do
+        creds="$(ssh root@$(grep xaas.epfl.ch inventory/inventory-${kubectl_target_cluster}.yml | head -1 | sed -E -n 's/^[[:space:]]*([a-zA-Z0-9.-]+\.[a-zA-Z]+):.*$/\1/p' ) k0s kubeconfig admin || true)"
+        if [ -n "$creds" ]; then
+           echo "$creds" > k0s_credentials/kubeconfig
+           echo k0s_credentials/kubeconfig
+           break
+        fi
+      done
+}
+
 ensure_suitcase
 ensure_k0s_role
 
-declare -a ansible_args
+declare -a remaining_args
+exec_mode=
 inventory_mode="test"
+kubectl_target_cluster="test"
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --help)
       help ;;
     --prod)
       inventory_mode="test-and-prod"
+      kubectl_target_cluster="prod"
       shift ;;
+    kubectl)
+      exec_mode=kubectl
+      shift
+      ;;
     *)
-      ansible_args+=("$1")
+      remaining_args+=("$1")
       shift ;;
   esac
 done
@@ -59,4 +101,13 @@ inventories () {
   esac
 }
 
-ansible-playbook $(inventories) playbook.yml "${ansible_args[@]}"
+case "$exec_mode" in
+  kubectl)
+    ensure_kubectl
+    export KUBECONFIG="$(download_k0s_credentials)"
+    exec kubectl "${remaining_args[@]}"
+    ;;
+  *)
+    ansible-playbook $(inventories) playbook.yml "${remaining_args[@]}"
+    ;;
+esac
