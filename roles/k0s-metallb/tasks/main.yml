@@ -1,0 +1,10 @@
+- name: Install MetalLB
+  include_tasks:
+    file: metallb-install.yml
+    apply:
+      tags:
+        - k0s
+        - k0s.metallb
+  tags:
+    - k0s
+    - k0s.metallb

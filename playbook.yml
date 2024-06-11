@@ -44,3 +44,9 @@
          apply:
            tags:
              - k0s_reset
+
+- name: Install and configure MetalLB
+  gather_facts: no
+  hosts: k0s_clusters
+  roles:
+    - role: roles/k0s-metallb

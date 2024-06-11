@@ -1,0 +1,15 @@
+- name: MetalLB Helm repository
+  kubernetes.core.helm_repository:
+    name: metallb
+    repo_url: https://metallb.github.io/metallb
+
+- name: MetalLB Helm chart
+  kubernetes.core.helm:
+    name: metallb
+    chart_ref: metallb/metallb
+    namespace: metallb
+    values:
+      controller:
+        tolerations:
+          - key: node-role.kubernetes.io/master
+
