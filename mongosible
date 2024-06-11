@@ -134,6 +134,7 @@ instead of setting the environment variable.
 PLEASE_SET_KUBECONFIG
     exit 0;;
   *)
+    export CUSTOM_LOCAL_TMP_DIRECTORY=$(pwd)/k0s-cache
     ansible-playbook $(inventories) playbook.yml "${remaining_args[@]}"
     ;;
 esac

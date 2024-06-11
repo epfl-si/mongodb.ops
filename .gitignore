@@ -1,3 +1,4 @@
 /ansible-deps-cache/
 __pycache__
 /k0s_credentials/
+/k0s-cache/
