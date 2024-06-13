@@ -30,7 +30,7 @@
 # yum automatically upgrades packages when newer versions become available. If
 # you want to prevent MongoDB upgrades, pin the package by adding the following
 # exclude directive to your /etc/yum.conf file:
-- name: Don't automatically upgrades MongoDB packages
+- name: Don't automatically upgrade MongoDB packages
   ansible.builtin.lineinfile:
     path: /etc/yum.conf
     line: |
