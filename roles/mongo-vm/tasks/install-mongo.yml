@@ -4,10 +4,6 @@
 - tags: always
   include_vars: mongo-vars.yml
 
-- name: debug vars
-  debug:
-    msg: "{{ mongodb_major_version }}"
-
 # https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/#configure-the-package-management-system-yum
 - name: Configure the package management system (yum)
   ansible.builtin.template:
