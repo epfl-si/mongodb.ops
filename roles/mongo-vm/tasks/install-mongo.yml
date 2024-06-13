@@ -23,7 +23,7 @@
     - "mongodb-org-{{ mongodb_version }}"
     - "mongodb-org-database-{{ mongodb_version }}"
     - "mongodb-org-server-{{ mongodb_version }}"
-    - "mongodb-mongosh-{{ mongodb_version }}"
+    - "mongodb-mongosh-{{ mongosh_version }}"
     - "mongodb-org-mongos-{{ mongodb_version }}"
     - "mongodb-org-tools-{{ mongodb_version }}"
 
@@ -45,8 +45,5 @@
   ansible.builtin.service:
     name: mongod
     state: started
-
-- name: Ensure the mongod is enable
-  ansible.builtin.service:
-    name: mongod
     enabled: yes
+

@@ -1,12 +1,1 @@
 all:
-  children:
-    vms:
-      children:
-        vms_test:
-          hosts:
-            itsidevfsd0036.xaas.epfl.ch:
-            itsidevfsd0037.xaas.epfl.ch:
-          vars:
-            inventory_environment: test
-            ansible_user: root
-            ansible_python_interpreter: /usr/bin/python3.9
