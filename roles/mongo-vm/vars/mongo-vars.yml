@@ -1,0 +1,4 @@
+mongodb_major_version: 7
+__mongodb_minor_version: 0
+__mongodb_patch_version: 7
+mongodb_version: "{{ mongodb_major_version }}.{{ __mongodb_minor_version }}.{{ __mongodb_patch_version}}"
