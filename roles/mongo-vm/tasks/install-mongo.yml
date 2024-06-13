@@ -10,11 +10,19 @@
     src: mongodb-org-repo.j2
     dest: "/etc/yum.repos.d/mongodb-org-{{ mongodb_major_version }}.0.repo"
 
+# Special configuration file for the `ansible.builtin.dnf` command below:
+- name: "/etc/dnf/dnf-ansible.conf"
+  shell:
+    creates: /etc/dnf/dnf-ansible.conf
+    cmd: |
+      grep -v "^exclude=" /etc/dnf/dnf.conf > /etc/dnf/dnf-ansible.conf
+
 # https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/#install-the-mongodb-packages
 - name: "Install the MongoDB {{ mongodb_version }} packages"
-  ansible.builtin.package:
+  ansible.builtin.dnf:
     name: "{{ item }}"
     state: present
+    conf_file: "/etc/dnf/dnf-ansible.conf"
   with_items:
     - "mongodb-org-{{ mongodb_version }}"
     - "mongodb-org-database-{{ mongodb_version }}"
