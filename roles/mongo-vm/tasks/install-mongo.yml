@@ -40,6 +40,15 @@
     line: |
       exclude=mongodb-org,mongodb-org-database,mongodb-org-server,mongodb-mongosh,mongodb-org-mongos,mongodb-org-tools
 
+
+# Replace 127.0.0.1 => 0.0.0.0 into /etc/mongod.conf
+
+- name: Replace a localhost entry searching for a literal string to avoid escaping
+  ansible.builtin.lineinfile:
+    path: /etc/mongod.conf
+    search_string: '  bindIp: 127.0.0.1  # Enter 0.0.0.0,:: to bind to all IPv4 and IPv6 addresses or, alternatively, use the net.bindIpAll setting.'
+    line: '  bindIp: 0.0.0.0  # Enter 0.0.0.0,:: to bind to all IPv4 and IPv6 addresses or, alternatively, use the net.bindIpAll setting.'
+
 #
 # If needed, here would be a good place to configure SELinux with MongoDB:
 # https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/#std-label-install-rhel-configure-selinux
