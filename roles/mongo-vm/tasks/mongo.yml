@@ -63,8 +63,8 @@
 
 - name: Check if root user is already there
   community.mongodb.mongodb_shell:
-    login_user: "{{ secrets.mongodb.admin.user }}"
-    login_password: "{{ secrets.mongodb.admin.password }}"
+    login_user: "{{ mongodb_db_inventory.admin.user }}"
+    login_password: "{{ mongodb_db_inventory.admin.password }}"
     eval: "db.getRoles({showBuiltinRoles: true})"
   register: _mongo_root_user
   changed_when: False
@@ -73,8 +73,8 @@
 - name: Create root for MongoDB database
   community.mongodb.mongodb_user:
     database: "admin"
-    name: "{{ secrets.mongodb.admin.user }}"
-    password: "{{ secrets.mongodb.admin.password }}"
+    name: "{{ mongodb_db_inventory.admin.user }}"
+    password: "{{ mongodb_db_inventory.admin.password }}"
     state: present
     roles: root
   when: _mongo_root_user.failed is true 
@@ -111,12 +111,13 @@
 
 - name: Create users for MongoDB databases
   community.mongodb.mongodb_user:
-    login_user: "{{ secrets.mongodb.admin.user }}"
-    login_password: "{{ secrets.mongodb.admin.password }}"
+    login_user: "{{ mongodb_db_inventory.admin.user }}"
+    login_password: "{{ mongodb_db_inventory.admin.password }}"
     login_port: "{{ mongodb_port }}"
     database: "{{ item.key }}"
     name: "{{ item.value.user }}"
     password: "{{ item.value.password }}"
     state: present
     roles: dbOwner
-  loop: "{{ databases | dict2items }}"
+  when: item.key != 'admin'
+  loop: "{{ mongodb_db_inventory | dict2items }}"

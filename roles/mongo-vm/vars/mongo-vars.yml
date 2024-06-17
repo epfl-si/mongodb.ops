@@ -1,5 +1,6 @@
-keybase: /keybase/team/epfl_mongodb
-secrets: "{{ lookup('file', keybase + '/secrets.yml') | from_yaml }}"
+__mongodb_keybase: /keybase/team/epfl_mongodb/
+__mongodb_db_inventory_file: "{{ 'mongodb_db_inventory-' + inventory_environment + '.yml' }}"
+mongodb_db_inventory: "{{ lookup('file', __mongodb_keybase + __mongodb_db_inventory_file) | from_yaml }}"
 
 mongodb_major_version: 7
 __mongodb_minor_version: 0
