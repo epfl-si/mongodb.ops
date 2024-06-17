@@ -40,73 +40,80 @@
     line: |
       exclude=mongodb-org,mongodb-org-database,mongodb-org-server,mongodb-mongosh,mongodb-org-mongos,mongodb-org-tools
 
-
 # Replace 127.0.0.1 => 0.0.0.0 into /etc/mongod.conf
-
 - name: Replace a localhost entry searching for a literal string to avoid escaping
   ansible.builtin.lineinfile:
     path: /etc/mongod.conf
     search_string: '  bindIp: 127.0.0.1  # Enter 0.0.0.0,:: to bind to all IPv4 and IPv6 addresses or, alternatively, use the net.bindIpAll setting.'
     line: '  bindIp: 0.0.0.0  # Enter 0.0.0.0,:: to bind to all IPv4 and IPv6 addresses or, alternatively, use the net.bindIpAll setting.'
 
-#
-# If needed, here would be a good place to configure SELinux with MongoDB:
-# https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/#std-label-install-rhel-configure-selinux
-#
+- name: Start and wait for MongoDB
+  block:
+  - name: Start service mongod
+    ansible.builtin.service:
+      name: mongod
+      state: started
+      enabled: yes
+  - name: Wait for service mongod is running
+    ansible.builtin.wait_for:
+      host: "{{ inventory_hostname }}"
+      port: "{{ mongodb_port }}"
+      delay: 5
+      timeout: 60
 
-- name: Start service mongod
-  ansible.builtin.service:
-    name: mongod
-    state: started
-    enabled: yes
+- name: Check if root user is already there
+  community.mongodb.mongodb_shell:
+    login_user: "{{ secrets.mongodb.admin.user }}"
+    login_password: "{{ secrets.mongodb.admin.password }}"
+    eval: "db.getRoles({showBuiltinRoles: true})"
+  register: _mongo_root_user
+  changed_when: False
+  ignore_errors: yes
 
-- name: Wait for service mongod is running
-  ansible.builtin.wait_for:
-    host: "{{ inventory_hostname }}"
-    port: 27017
-    delay: 5
-    timeout: 60
-  become: yes
-
-- name: Create root for mongodb database
+- name: Create root for MongoDB database
   community.mongodb.mongodb_user:
     database: "admin"
     name: "{{ secrets.mongodb.admin.user }}"
     password: "{{ secrets.mongodb.admin.password }}"
     state: present
     roles: root
+  when: _mongo_root_user.failed is true 
 
-- name: Force mongodb authentification 1/2
-  ansible.builtin.lineinfile:
-    path: /etc/mongod.conf
-    search_string: '#security:'
-    line: 'security:'  
+- name: Force MongoDB authentification
+  block:
+  - name: Force MongoDB authentification 1/2
+    ansible.builtin.lineinfile:
+      path: /etc/mongod.conf
+      search_string: '#security:'
+      line: 'security:'
+    register: _mongod_conf_line_1
+  - name: Force MongoDB authentification 2/2
+    ansible.builtin.lineinfile:
+      path: /etc/mongod.conf
+      insertafter: 'security:'
+      line: '  authorization: "enabled"'
+    register: _mongod_conf_line_2
 
-- name: Force mongodb authentification 2/2
-  ansible.builtin.lineinfile:
-    path: /etc/mongod.conf
-    insertafter: 'security:'
-    line: '  authorization: "enabled"'
+- name: Restart and wait for MongoDB
+  block:
+  - name: Restart service mongod
+    ansible.builtin.service:
+      name: mongod
+      state: restarted
+      enabled: yes
+  - name: Wait for service mongod is running
+    ansible.builtin.wait_for:
+      host: "{{ inventory_hostname }}"
+      port: "{{ mongodb_port }}"
+      delay: 5
+      timeout: 60
+  when: (_mongod_conf_line_1 is changed or _mongod_conf_line_2 is changed)
 
-- name: Restart service mongod
-  ansible.builtin.service:
-    name: mongod
-    state: restarted
-    enabled: yes
-
-- name: Wait for service mongod is running
-  ansible.builtin.wait_for:
-    host: "{{ inventory_hostname }}"
-    port: 27017
-    delay: 5
-    timeout: 60
-  become: yes
-
-- name: Create users for mongodb databases
+- name: Create users for MongoDB databases
   community.mongodb.mongodb_user:
     login_user: "{{ secrets.mongodb.admin.user }}"
     login_password: "{{ secrets.mongodb.admin.password }}"
-    login_port: "27017"
+    login_port: "{{ mongodb_port }}"
     database: "{{ item.key }}"
     name: "{{ item.value.user }}"
     password: "{{ item.value.password }}"

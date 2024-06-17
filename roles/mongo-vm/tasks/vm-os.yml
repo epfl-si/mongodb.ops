@@ -17,6 +17,6 @@
     - pip
   
 # Allow ansible to manage database
-- name: Install pymongo
+- name: Install PyMongo
   ansible.builtin.pip:
     name: pymongo
