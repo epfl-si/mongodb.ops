@@ -1,3 +1,6 @@
+keybase: /keybase/team/epfl_mongodb
+secrets: "{{ lookup('file', keybase + '/secrets.yml') | from_yaml }}"
+
 mongodb_major_version: 7
 __mongodb_minor_version: 0
 __mongodb_patch_version: 11

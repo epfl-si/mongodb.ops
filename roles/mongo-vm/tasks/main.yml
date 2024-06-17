@@ -21,7 +21,7 @@
     - vm.os.upgrade
 
 - include_tasks:
-    file: install-mongo.yml
+    file: mongo.yml
     apply:
       tags:
         - vm

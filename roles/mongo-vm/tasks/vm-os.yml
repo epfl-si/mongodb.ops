@@ -14,3 +14,9 @@
     - nmap
     - telnet
     - tmux
+    - pip
+  
+# Allow ansible to manage database
+- name: Install pymongo
+  ansible.builtin.pip:
+    name: pymongo

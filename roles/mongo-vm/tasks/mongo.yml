@@ -60,3 +60,56 @@
     state: started
     enabled: yes
 
+- name: Wait for service mongod is running
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 27017
+    delay: 5
+    timeout: 60
+  become: yes
+
+- name: Create root for mongodb database
+  community.mongodb.mongodb_user:
+    database: "admin"
+    name: "{{ secrets.mongodb.admin.user }}"
+    password: "{{ secrets.mongodb.admin.password }}"
+    state: present
+    roles: root
+
+- name: Force mongodb authentification 1/2
+  ansible.builtin.lineinfile:
+    path: /etc/mongod.conf
+    search_string: '#security:'
+    line: 'security:'  
+
+- name: Force mongodb authentification 2/2
+  ansible.builtin.lineinfile:
+    path: /etc/mongod.conf
+    insertafter: 'security:'
+    line: '  authorization: "enabled"'
+
+- name: Restart service mongod
+  ansible.builtin.service:
+    name: mongod
+    state: restarted
+    enabled: yes
+
+- name: Wait for service mongod is running
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 27017
+    delay: 5
+    timeout: 60
+  become: yes
+
+- name: Create users for mongodb databases
+  community.mongodb.mongodb_user:
+    login_user: "{{ secrets.mongodb.admin.user }}"
+    login_password: "{{ secrets.mongodb.admin.password }}"
+    login_port: "27017"
+    database: "{{ item.key }}"
+    name: "{{ item.value.user }}"
+    password: "{{ item.value.password }}"
+    state: present
+    roles: dbOwner
+  loop: "{{ databases | dict2items }}"
