@@ -96,6 +96,13 @@
 
 - name: Change MongoDB Storage path
   block:
+  - name: Create mongodb storage directory
+    ansible.builtin.file:
+      path: '{{ mongodb_storage_path }}'
+      state: directory
+      owner: mongod
+      group: mongod
+      mode: 0755
   - name: Change MongoDB Storage path 1/2
     ansible.builtin.lineinfile:
       path: /etc/mongod.conf
@@ -106,7 +113,7 @@
     ansible.builtin.lineinfile:
       path: /etc/mongod.conf
       insertafter: "  dbPath: {{ mongodb_storage_path }}"
-      line: '  directoryPerDB: true'
+      line: '#  directoryPerDB: true'
     register: _mongod_conf_storage_2
 
 - name: Restart and wait for MongoDB
