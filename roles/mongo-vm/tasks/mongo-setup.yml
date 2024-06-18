@@ -65,17 +65,17 @@
       state: directory
       owner: mongod
       group: mongod
-      mode: 0755
+      mode: 0700
   - name: Change MongoDB Storage configuration
     ansible.builtin.replace:
       path: /etc/mongod.conf
-      regexp: "^# Where and how to store data.\nstorage:\n  dbPath: (.*)\n(.*)?\n?$"
+      after: "# Where and how to store data."
+      before: "# how the process runs"
+      regexp: "^storage:\n  dbPath: (.*)\n(  directoryPerDB: (.*)\n)?"
       replace: |
-        # Where and how to store data.
         storage:
           dbPath: {{ mongodb_storage_path }}
-         directoryPerDB: true
-
+          directoryPerDB: true
     register: _mongod_conf_storage
 
 - name: Restart and wait for MongoDB

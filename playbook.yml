@@ -1,9 +1,3 @@
-- name: "Access via ssh"
-  hosts: vms
-  gather_facts: no
-  roles:
-    - role: roles/mongo-vm
-
 - name: "No firewalls, no SELinux"
   hosts: vms
   gather_facts: no
@@ -16,3 +10,9 @@
       name: firewalld
       state: stopped
       enabled: false
+
+- name: "MongoDB vm + service"
+  hosts: vms
+  gather_facts: no
+  roles:
+    - role: roles/mongo-vm
