@@ -21,14 +21,40 @@
     - vm.os.upgrade
 
 - include_tasks:
-    file: mongo.yml
+    file: mongo-install.yml
     apply:
       tags:
         - vm
-        - vm.mongo
+        - mongo
+        - mongo.install
   tags:
     - vm
-    - vm.mongo
+    - mongo
+    - mongo.install
+
+- include_tasks:
+    file: mongo-setup.yml
+    apply:
+      tags:
+        - vm
+        - mongo
+        - mongo.setup
+  tags:
+    - vm
+    - mongo
+    - mongo.setup
+
+- include_tasks:
+    file: mongo-manage.yml
+    apply:
+      tags:
+        - vm
+        - mongo
+        - mongo.manage
+  tags:
+    - vm
+    - mongo
+    - mongo.manage
 
 - include_tasks:
     file: tools.yml
@@ -37,3 +63,4 @@
         - never
   tags:
     - tools.connect
+    - debug

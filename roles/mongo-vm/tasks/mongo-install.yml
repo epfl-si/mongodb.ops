@@ -1,0 +1,41 @@
+# Install MongoDB 7.0 Community Edition on Red Hat Enterprise Linux
+# https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/#additional-information
+
+- tags: always
+  include_vars: mongo-vars.yml
+
+# https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/#configure-the-package-management-system-yum
+- name: Configure the package management system (yum)
+  ansible.builtin.template:
+    src: mongodb-org-repo.j2
+    dest: "/etc/yum.repos.d/mongodb-org-{{ mongodb_major_version }}.0.repo"
+
+# Special configuration file for the `ansible.builtin.dnf` command below:
+- name: "/etc/dnf/dnf-ansible.conf"
+  shell:
+    creates: /etc/dnf/dnf-ansible.conf
+    cmd: |
+      grep -v "^exclude=" /etc/dnf/dnf.conf > /etc/dnf/dnf-ansible.conf
+
+# https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/#install-the-mongodb-packages
+- name: "Install the MongoDB {{ mongodb_version }} packages"
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+    conf_file: "/etc/dnf/dnf-ansible.conf"
+  with_items:
+    - "mongodb-org-{{ mongodb_version }}"
+    - "mongodb-org-database-{{ mongodb_version }}"
+    - "mongodb-org-server-{{ mongodb_version }}"
+    - "mongodb-mongosh-{{ mongosh_version }}"
+    - "mongodb-org-mongos-{{ mongodb_version }}"
+    - "mongodb-org-tools-{{ mongodb_version }}"
+
+# yum automatically upgrades packages when newer versions become available. If
+# you want to prevent MongoDB upgrades, pin the package by adding the following
+# exclude directive to your /etc/yum.conf file:
+- name: Don't automatically upgrade MongoDB packages
+  ansible.builtin.lineinfile:
+    path: /etc/yum.conf
+    line: |
+      exclude=mongodb-org,mongodb-org-database,mongodb-org-server,mongodb-mongosh,mongodb-org-mongos,mongodb-org-tools
