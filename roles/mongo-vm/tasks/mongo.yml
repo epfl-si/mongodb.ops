@@ -94,6 +94,21 @@
       line: '  authorization: "enabled"'
     register: _mongod_conf_line_2
 
+- name: Change MongoDB Storage path
+  block:
+  - name: Change MongoDB Storage path 1/2
+    ansible.builtin.lineinfile:
+      path: /etc/mongod.conf
+      search_string: '  dbPath: /var/lib/mongo'
+      line: "  dbPath: {{ mongodb_storage_path }}"
+    register: _mongod_conf_storage_1
+  - name: Change MongoDB Storage path 2/2
+    ansible.builtin.lineinfile:
+      path: /etc/mongod.conf
+      insertafter: "  dbPath: {{ mongodb_storage_path }}"
+      line: '  directoryPerDB: true'
+    register: _mongod_conf_storage_2
+
 - name: Restart and wait for MongoDB
   block:
   - name: Restart service mongod
@@ -107,7 +122,7 @@
       port: "{{ mongodb_port }}"
       delay: 5
       timeout: 60
-  when: (_mongod_conf_line_1 is changed or _mongod_conf_line_2 is changed)
+  when: (_mongod_conf_line_1 is changed or _mongod_conf_line_2 is changed or _mongod_conf_storage_1 is changed or _mongod_conf_storage_2 is changed)
 
 - name: Create users for MongoDB databases
   community.mongodb.mongodb_user:
