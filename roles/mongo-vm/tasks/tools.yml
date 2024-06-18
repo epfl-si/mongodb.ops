@@ -1,0 +1,25 @@
+- tags: always
+  include_vars: mongo-vars.yml
+
+- name: Display connection string
+  block:
+    - name: Which database?
+      pause:
+        prompt: "Which Mongo database? {{ mongodb_db_inventory | list }}"
+        echo: yes
+      register: __mongo_db
+    - name: "Use the connection string below to connect to {{ __mongo_db.user_input }}"
+      debug:
+        msg:
+        - "mongosh mongodb://{{ mongodb_db_inventory[__mongo_db.user_input].user }}:{{ mongodb_db_inventory[__mongo_db.user_input].password }}@{{ inventory_hostname }}:{{ mongodb_port }}/{{ __mongo_db.user_input }}"
+
+    - name: Get DB version
+      command:
+          cmd: "mongosh mongodb://{{ mongodb_db_inventory[__mongo_db.user_input].user }}:{{ mongodb_db_inventory[__mongo_db.user_input].password }}@{{ inventory_hostname }}:{{ mongodb_port }}/{{ __mongo_db.user_input }} --eval \"db.version();\""
+      register: __db_version
+    - debug:
+        var: __db_version.stdout
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - tools.connect

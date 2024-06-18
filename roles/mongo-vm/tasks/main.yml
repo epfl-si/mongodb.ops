@@ -29,3 +29,11 @@
   tags:
     - vm
     - vm.mongo
+
+- include_tasks:
+    file: tools.yml
+    apply:
+      tags:
+        - never
+  tags:
+    - tools.connect
