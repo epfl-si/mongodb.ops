@@ -96,25 +96,23 @@
 
 - name: Change MongoDB Storage path
   block:
-  - name: Create mongodb storage directory
+  - name: Create MongoDB storage directory
     ansible.builtin.file:
-      path: '{{ mongodb_storage_path }}'
+      path: "{{ mongodb_storage_path }}"
       state: directory
       owner: mongod
       group: mongod
       mode: 0755
-  - name: Change MongoDB Storage path 1/2
-    ansible.builtin.lineinfile:
+  - name: Change MongoDB Storage configuration
+    ansible.builtin.replace:
       path: /etc/mongod.conf
-      search_string: '  dbPath: /var/lib/mongo'
-      line: "  dbPath: {{ mongodb_storage_path }}"
-    register: _mongod_conf_storage_1
-  - name: Change MongoDB Storage path 2/2
-    ansible.builtin.lineinfile:
-      path: /etc/mongod.conf
-      insertafter: "  dbPath: {{ mongodb_storage_path }}"
-      line: '#  directoryPerDB: true'
-    register: _mongod_conf_storage_2
+      regexp: "^# Where and how to store data.\nstorage:\n  dbPath: {{ mongodb_storage_path }}\n(.*)\n$"
+      replace: |
+        # Where and how to store data.
+        storage:
+          dbPath: {{ mongodb_storage_path }}
+        # directoryPerDB: true
+    register: _mongod_conf_storage
 
 - name: Restart and wait for MongoDB
   block:
@@ -129,7 +127,7 @@
       port: "{{ mongodb_port }}"
       delay: 5
       timeout: 60
-  when: (_mongod_conf_line_1 is changed or _mongod_conf_line_2 is changed or _mongod_conf_storage_1 is changed or _mongod_conf_storage_2 is changed)
+  when: (_mongod_conf_line_1 is changed or _mongod_conf_line_2 is changed or _mongod_conf_storage is changed)
 
 - name: Create users for MongoDB databases
   community.mongodb.mongodb_user:
