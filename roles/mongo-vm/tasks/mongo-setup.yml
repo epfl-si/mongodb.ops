@@ -66,6 +66,15 @@
       owner: mongod
       group: mongod
       mode: 0700
+  # Note: this task assume that the vm-lvm task, in particular the one that
+  #       mount the logical volumes, has already been done.
+  - name: "`mongod` is the owner and group of the storage path"
+    ansible.builtin.file:
+      path: "{{ mongodb_storage_path }}/{{ item.key | replace('-','.45') | replace('_','.95') }}"
+      owner: mongod
+      group: mongod
+      mode: 0700
+    loop: "{{ mongodb_db_inventory | dict2items }}"
   - name: Change MongoDB Storage configuration
     ansible.builtin.replace:
       path: /etc/mongod.conf
