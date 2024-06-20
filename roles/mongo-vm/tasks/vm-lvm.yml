@@ -14,3 +14,9 @@
     lv: "{{ item.key }}"
     size: 2g
   loop: "{{ mongodb_db_inventory | dict2items }}"
+
+- name: Format the xfs filesystem
+  filesystem:
+    fstype: xfs
+    dev: "/dev/mongo/{{ item.key }}"
+  loop: "{{ mongodb_db_inventory | dict2items }}"
