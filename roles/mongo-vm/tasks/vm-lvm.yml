@@ -15,15 +15,17 @@
     size: 2g
   loop: "{{ mongodb_db_inventory | dict2items }}"
 
-- name: Format the xfs filesystem
-  filesystem:
+- name: Format the XFS filesystem
+  community.general.filesystem:
     fstype: xfs
     dev: "/dev/mongo/{{ item.key }}"
   loop: "{{ mongodb_db_inventory | dict2items }}"
 
 - name: "Mount the lvs on {{ mongodb_storage_path }}"
-  mount:
-    path: "{{ mongodb_storage_path }}/{{ item.key }}"
+  ansible.posix.mount:
+    # Note: MongoDB uses decimall representation of ASCII value for special char
+    #       For now, we only allow hyphens and undescores.
+    path: "{{ mongodb_storage_path }}/{{ item.key | replace('-','.45') | replace('_','.95') }}"
     src: "/dev/mongo/{{ item.key }}"
     fstype: xfs
     state: mounted
