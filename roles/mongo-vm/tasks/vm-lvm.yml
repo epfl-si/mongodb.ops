@@ -1,0 +1,5 @@
+- name: "`mongo` volume group"
+  community.general.lvg:
+    vg: mongo
+    pvs: /dev/sdb
+    pesize: 32
