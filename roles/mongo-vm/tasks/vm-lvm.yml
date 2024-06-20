@@ -1,5 +1,16 @@
+- tags: always
+  include_vars: mongo-vars.yml
+
 - name: "`mongo` volume group"
   community.general.lvg:
     vg: mongo
     pvs: /dev/sdb
     pesize: 32
+
+# https://docs.ansible.com/ansible/latest/collections/community/general/lvol_module.html
+- name: Create a logical volume per databases
+  community.general.lvol:
+    vg: mongo
+    lv: "{{ item.key }}"
+    size: 2g
+  loop: "{{ mongodb_db_inventory | dict2items }}"
