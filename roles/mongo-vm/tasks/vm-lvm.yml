@@ -30,3 +30,11 @@
     fstype: xfs
     state: mounted
   loop: "{{ mongodb_db_inventory | dict2items }}"
+
+- name: "`mongod` is the owner and group of the storage path"
+  ansible.builtin.file:
+    path: "{{ mongodb_storage_path }}/{{ item.key | replace('-','.45') | replace('_','.95') }}"
+    owner: mongod
+    group: mongod
+    mode: '0700'
+  loop: "{{ mongodb_db_inventory | dict2items }}"
