@@ -20,3 +20,11 @@
     fstype: xfs
     dev: "/dev/mongo/{{ item.key }}"
   loop: "{{ mongodb_db_inventory | dict2items }}"
+
+- name: "Mount the lvs on {{ mongodb_storage_path }}"
+  mount:
+    path: "{{ mongodb_storage_path }}/{{ item.key }}"
+    src: "/dev/mongo/{{ item.key }}"
+    fstype: xfs
+    state: mounted
+  loop: "{{ mongodb_db_inventory | dict2items }}"
