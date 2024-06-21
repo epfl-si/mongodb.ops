@@ -1,0 +1,55 @@
+- name: Manage VIP between servers
+  block:
+  - name: Check if VIP is active on this host
+    shell: "ip addr show | grep {{ vip_address }}"
+    register: vip_check
+    ignore_errors: true
+
+  - name: Determine if VIP is active on this host
+    set_fact:
+      vip_active: "{{ (vip_check.stdout | length) > 0 }}"
+
+  - name: Aggregate results
+    add_host:
+      name: "{{ inventory_hostname }}"
+      active: "{{ vip_active }}"
+
+  - name: Test if at least one vip is activated
+    set_fact:
+      one_vip_active: "{{ hostvars | dict2items | selectattr('value.vip_active', 'equalto', true) | list | length == 0 }}"
+      delegate_to: localhost
+
+  - name: Gather current VIP states
+    add_host:
+      name: "{{ inventory_hostname }}"
+      vip_active: "{{ vip_active }}"
+
+  tags:
+    - vm.vip
+
+- name: Determine VIP state and switch if needed
+  block:
+
+  - name: Deactivate VIP on current active host
+    command: "ip addr del {{ vip_address }}/20 dev ens192"
+    when: vip_active
+
+  - name: Activate VIP on the fisrt host
+    command: "ip addr add {{ vip_address }}/20 dev ens192"
+    when: one_vip_active
+    run_once: true
+
+  - name: Activate VIP on the other host
+    command: "ip addr add {{ vip_address }}/20 dev ens192"
+    when: 
+      - not one_vip_active 
+      - not vip_active
+
+  - name: Rmove ARP table 
+    command: "arping -U -c 3 -I ens192 {{ vip_address }}"
+    when: 
+      - not one_vip_active 
+      - not vip_active
+      
+  tags:
+    - vm.vip

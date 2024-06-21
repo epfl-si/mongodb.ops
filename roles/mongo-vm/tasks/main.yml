@@ -31,6 +31,16 @@
     - vm.lvm
 
 - include_tasks:
+    file: vm-vip.yml
+    apply:
+      tags:
+        - vm
+        - vm.vip
+  tags:
+    - vm
+    - vm.vip
+
+- include_tasks:
     file: mongo-install.yml
     apply:
       tags:
@@ -74,3 +84,5 @@
   tags:
     - tools.connect
     - debug
+
+
