@@ -1,0 +1,8 @@
+- name: Check if VIP is active on this host
+  ansible.builtin.shell: "ip addr show | grep {{ vip_address }}"
+  register: vip_check
+  ignore_errors: true
+
+- name: Determine if VIP is active on this host
+  ansible.builtin.set_fact:
+    vip_active: "{{ (vip_check.stdout | length) > 0 }}"

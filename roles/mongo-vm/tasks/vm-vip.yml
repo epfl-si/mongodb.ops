@@ -1,14 +1,5 @@
 - name: Manage VIP between servers
   block:
-  - name: Check if VIP is active on this host
-    shell: "ip addr show | grep {{ vip_address }}"
-    register: vip_check
-    ignore_errors: true
-
-  - name: Determine if VIP is active on this host
-    set_fact:
-      vip_active: "{{ (vip_check.stdout | length) > 0 }}"
-
   - name: Aggregate results
     add_host:
       name: "{{ inventory_hostname }}"

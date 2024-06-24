@@ -31,6 +31,15 @@
     - vm.lvm
 
 - include_tasks:
+    file: vm-vip-check.yml
+    apply:
+      tags:
+        - never
+        - vm.vip
+  tags:
+    - vm.vip
+
+- include_tasks:
     file: vm-vip.yml
     apply:
       tags:
@@ -84,5 +93,3 @@
   tags:
     - tools.connect
     - debug
-
-
