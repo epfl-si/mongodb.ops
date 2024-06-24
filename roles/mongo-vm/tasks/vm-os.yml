@@ -10,11 +10,14 @@
   ansible.builtin.dnf: 
     name: "{{ item }}"
     state: latest
+    disable_gpg_check: true
   with_items:
     - nmap
     - telnet
     - tmux
     - pip
+    - https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    - restic
   
 # Allow ansible to manage database
 - name: Install PyMongo
