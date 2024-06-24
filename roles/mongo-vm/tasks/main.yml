@@ -35,8 +35,10 @@
     apply:
       tags:
         - never
+        - mongo.backup
         - vm.vip
   tags:
+    - mongo.backup
     - vm.vip
 
 - include_tasks:
@@ -84,6 +86,15 @@
     - vm
     - mongo
     - mongo.manage
+
+- include_tasks:
+    file: mongo-backup.yml
+    apply:
+      tags:
+        - never
+        - mongo.backup
+  tags:
+    - mongo.backup
 
 - include_tasks:
     file: tools.yml

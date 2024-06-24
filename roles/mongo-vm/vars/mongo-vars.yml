@@ -9,3 +9,4 @@ mongosh_version: 2.2.6
 mongodb_version: "{{ mongodb_major_version }}.{{ __mongodb_minor_version }}.{{ __mongodb_patch_version}}"
 mongodb_port: 27017
 mongodb_storage_path: /srv/mongo/data
+mongodb_backup_path: /srv/mongo/backup
