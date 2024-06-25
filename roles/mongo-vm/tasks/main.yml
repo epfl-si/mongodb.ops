@@ -107,6 +107,7 @@
         - mongo.backup
   tags:
     - mongo.backup
+    - mongo.unlock
 
 - include_tasks:
     file: tools.yml

@@ -19,6 +19,8 @@
     login_password: "{{ mongodb_db_inventory.admin.password }}"
     eval: "db.fsyncUnlock()"
   when: ( "vip_active" or "_mongo_is_locked.transformed_output.lockCount >= 1" ) or ("'mongo.unlock' in ansible_run_tags")
+  tags:
+    - mongo.unlock
 
 - name: Initialization of restic on s3
   block:
