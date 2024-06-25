@@ -14,3 +14,4 @@ mongodb_version: "{{ mongodb_major_version }}.{{ __mongodb_minor_version }}.{{ _
 mongodb_port: 27017
 mongodb_storage_path: /srv/mongo/data
 mongodb_backup_path: /srv/mongo/backup
+mongodb_restore_path: /srv/mongo/restore

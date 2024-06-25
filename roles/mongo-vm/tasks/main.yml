@@ -36,10 +36,21 @@
       tags:
         - never
         - mongo.backup
+        - mongo.restore
         - vm.vip
   tags:
     - mongo.backup
+    - mongo.restore
     - vm.vip
+
+- include_tasks:
+    file: mongo-restore.yml
+    apply:
+      tags:
+        - never
+        - mongo.restore
+  tags:
+    - mongo.restore
 
 - include_tasks:
     file: vm-vip.yml
