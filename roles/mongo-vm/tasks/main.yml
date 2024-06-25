@@ -36,10 +36,12 @@
       tags:
         - never
         - mongo.backup
+        - mongo.cron
         - mongo.restore
         - vm.vip
   tags:
     - mongo.backup
+    - mongo.cron
     - mongo.restore
     - vm.vip
 
@@ -107,6 +109,7 @@
         - mongo.backup
   tags:
     - mongo.backup
+    - mongo.cron
     - mongo.unlock
 
 - include_tasks:

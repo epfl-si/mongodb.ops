@@ -9,6 +9,10 @@
   register: _mongo_is_locked
   when: "vip_active"
 
+- name: Test lockCount
+  debug:
+    msg: "{{ _mongo_is_locked.transformed_output.lockCount }}"
+
 - name: Backup database
   ansible.builtin.shell: mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backup_path }}
   when: "vip_active"
@@ -46,3 +50,21 @@
     AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
   ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_bucket_path }} backup {{ mongodb_backup_path }}
   when: "vip_active"
+
+- name: Install the MongoDB cron file under /etc/cron.d
+  ansible.builtin.cron:
+    name: MongoDB backup
+    weekday: "*"
+    minute: "0"
+    hour: "*/6"
+    user: root
+    job: >
+      export CURRENT_DATE=$(date +'%Y%m%d-%H%M%S');
+      YUMINTERACTIVE=0
+      mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backup_path }}/$CURRENT_DATE &&
+      tar --exclude="*.tar.gz" -czvf {{ mongodb_backup_path }}/$CURRENT_DATE.tar.gz {{ mongodb_backup_path }}/$CURRENT_DATE &&
+      rm -rf {{ mongodb_backup_path }}/$CURRENT_DATE
+    cron_file: ansible_mongodump
+    state: "{{ 'absent' if not vip_active else 'present' }}"
+  tags:
+    - mongo.cron
