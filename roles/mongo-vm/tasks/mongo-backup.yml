@@ -6,11 +6,19 @@
     login_user: "{{ mongodb_db_inventory.admin.user }}"
     login_password: "{{ mongodb_db_inventory.admin.password }}"
     eval: "db.fsyncLock()"
+  register: _mongo_is_locked
   when: "vip_active"
 
 - name: Backup database
   ansible.builtin.shell: mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backup_path }}
   when: "vip_active"
+
+- name: Unlock database
+  community.mongodb.mongodb_shell:
+    login_user: "{{ mongodb_db_inventory.admin.user }}"
+    login_password: "{{ mongodb_db_inventory.admin.password }}"
+    eval: "db.fsyncUnlock()"
+  when: ( "vip_active" or "_mongo_is_locked.transformed_output.lockCount >= 1" ) or ("'mongo.unlock' in ansible_run_tags")
 
 - name: Initialization of restic on s3
   block:
@@ -35,11 +43,4 @@
     AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
     AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
   ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_bucket_path }} backup {{ mongodb_backup_path }}
-  when: "vip_active"
-
-- name: Unlock database
-  community.mongodb.mongodb_shell:
-    login_user: "{{ mongodb_db_inventory.admin.user }}"
-    login_password: "{{ mongodb_db_inventory.admin.password }}"
-    eval: "db.fsyncUnlock()"
   when: "vip_active"
