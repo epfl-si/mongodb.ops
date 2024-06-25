@@ -24,15 +24,6 @@
       delay: 5
       timeout: 60
 
-- name: Check if root user is already there
-  community.mongodb.mongodb_shell:
-    login_user: "{{ mongodb_db_inventory.admin.user }}"
-    login_password: "{{ mongodb_db_inventory.admin.password }}"
-    eval: "db.getRoles({showBuiltinRoles: true})"
-  register: _mongo_root_user
-  changed_when: False
-  ignore_errors: yes
-
 - name: Create root for MongoDB database
   community.mongodb.mongodb_user:
     database: "admin"
@@ -40,7 +31,7 @@
     password: "{{ mongodb_db_inventory.admin.password }}"
     state: present
     roles: root
-  when: _mongo_root_user.failed is true 
+  ignore_errors: yes
 
 - name: Force MongoDB authentification
   block:
