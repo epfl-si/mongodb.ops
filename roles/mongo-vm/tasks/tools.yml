@@ -37,3 +37,16 @@
   run_once: true
   tags:
     - tools.restic
+
+- import_tasks:
+    file: vm-vip-check.yml
+  tags:
+    - tools.vip
+
+- name: Display active VIP
+  block:
+  - debug:
+      msg: "{{ vip_active }}"
+    when: vip_active
+  tags:
+    - tools.vip
