@@ -103,4 +103,5 @@
         - never
   tags:
     - tools.connect
+    - tools.restic
     - debug

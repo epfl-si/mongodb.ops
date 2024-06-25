@@ -23,3 +23,17 @@
   run_once: true
   tags:
     - tools.connect
+
+- name: Display some restic commands
+  debug:
+    msg:
+    - "AWS_ACCESS_KEY_ID={{ mongodb_s3.aws_access_key_id }} \
+       AWS_SECRET_ACCESS_KEY={{ mongodb_s3.aws_secret_access_key }} \
+       RESTIC_PASSWORD={{ mongodb_s3.restic_password }} \
+       restic \
+              -r s3:https://s3.epfl.ch/{{ mongodb_s3_bucket_path }} \
+              ls -l latest {{ mongodb_backup_path }}"
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - tools.restic
