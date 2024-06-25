@@ -19,14 +19,14 @@
       RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
       AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
       AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_buket_path }} snapshots
+    ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_bucket_path }} snapshots
     register: mongodb_s3_init
   - name: Initialize repo s3 if not initialized
     environment:
       RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
       AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
       AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_buket_path }} init
+    ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_bucket_path }} init
     when: "mongodb_s3_init.stdout != '' and 'snapshots' not in mongodb_s3_init.stdout"
 
 - name: Backup {{ mongodb_storage_path }} in s3
@@ -34,7 +34,7 @@
     RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
     AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
     AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-  ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_buket_path }} backup {{ mongodb_backup_path }}
+  ansible.builtin.shell: restic -r s3:https://s3.epfl.ch/{{ mongodb_s3_bucket_path }} backup {{ mongodb_backup_path }}
   when: "vip_active"
 
 - name: Unlock database
