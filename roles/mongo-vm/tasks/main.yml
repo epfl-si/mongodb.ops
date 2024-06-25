@@ -45,6 +45,7 @@
     file: vm-vip.yml
     apply:
       tags:
+        - never
         - vm
         - vm.vip
   tags:
