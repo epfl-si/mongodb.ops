@@ -12,6 +12,7 @@
 - name: Test lockCount
   debug:
     msg: "{{ _mongo_is_locked.transformed_output.lockCount }}"
+  when: "vip_active"  
 
 - name: Backup database
   ansible.builtin.shell: mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backup_path }}
@@ -25,23 +26,6 @@
   when: ( "vip_active" or "_mongo_is_locked.transformed_output.lockCount >= 1" ) or ("'mongo.unlock' in ansible_run_tags")
   tags:
     - mongo.unlock
-
-- name: Initialization of restic on s3
-  block:
-  - name: Check if repo s3 is initialized
-    environment:
-      RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
-      AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
-      AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r {{ mongodb_s3_bucket_path }} snapshots
-    register: mongodb_s3_init
-  - name: Initialize repo s3 if not initialized
-    environment:
-      RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
-      AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
-      AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r {{ mongodb_s3_bucket_path }} init
-    when: "mongodb_s3_init.stdout != '' and 'snapshots' not in mongodb_s3_init.stdout"
 
 - name: Backup {{ mongodb_storage_path }} in s3
   environment:

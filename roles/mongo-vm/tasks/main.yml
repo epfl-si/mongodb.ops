@@ -46,15 +46,6 @@
     - vm.vip
 
 - include_tasks:
-    file: mongo-restore.yml
-    apply:
-      tags:
-        - never
-        - mongo.restore
-  tags:
-    - mongo.restore
-
-- include_tasks:
     file: vm-vip.yml
     apply:
       tags:
@@ -102,6 +93,17 @@
     - mongo.manage
 
 - include_tasks:
+    file: mongo-restic-init-s3.yml
+    apply:
+      tags:
+        - never
+        - mongo.backup
+        - mongo.restore
+  tags:
+    - mongo.backup
+    - mongo.restore
+
+- include_tasks:
     file: mongo-backup.yml
     apply:
       tags:
@@ -111,6 +113,15 @@
     - mongo.backup
     - mongo.cron
     - mongo.unlock
+
+- include_tasks:
+    file: mongo-restore.yml
+    apply:
+      tags:
+        - never
+        - mongo.restore
+  tags:
+    - mongo.restore
 
 - include_tasks:
     file: tools.yml

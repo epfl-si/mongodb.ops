@@ -1,41 +1,14 @@
 - tags: always
   include_vars: mongo-vars.yml
 
-- name: Lock database
-  community.mongodb.mongodb_shell:
-    login_user: "{{ mongodb_db_inventory.admin.user }}"
-    login_password: "{{ mongodb_db_inventory.admin.password }}"
-    eval: "db.fsyncLock()"
-  when: "not vip_active"
-
-- name: Initialization of restic on s3
-  block:
-  - name: Check if repo s3 is initialized
-    environment:
-      RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
-      AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
-      AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r {{ mongodb_s3_buket_path }} snapshots
-    register: mongodb_s3_init
-  - name: Initialize repo s3 if not initialized
-    environment:
-      RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
-      AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
-      AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r {{ mongodb_s3_buket_path }} init
-    when: "mongodb_s3_init.stdout != '' and 'snapshots' not in mongodb_s3_init.stdout"
-
 - name: Restore {{ mongodb_storage_path }} in s3
   environment:
     RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
     AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
     AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-  ansible.builtin.shell: restic -r {{ mongodb_s3_buket_path }} restore latest --target {{ mongodb_restore_path }}
+  ansible.builtin.shell: restic -r {{ mongodb_s3_bucket_path }} restore latest --target {{ mongodb_restore_path }}
   when: "not vip_active"
 
-- name: Unlock database
-  community.mongodb.mongodb_shell:
-    login_user: "{{ mongodb_db_inventory.admin.user }}"
-    login_password: "{{ mongodb_db_inventory.admin.password }}"
-    eval: "db.fsyncUnlock()"
+- name: Restore database
+  ansible.builtin.shell: mongorestore  -u {{ mongodb_db_inventory.admin.user }} -p {{ mongodb_db_inventory.admin.password }} --drop {{ mongodb_restore_path }}{{ mongodb_backup_path }}
   when: "not vip_active"
