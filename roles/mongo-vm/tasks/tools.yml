@@ -31,7 +31,7 @@
        AWS_SECRET_ACCESS_KEY={{ mongodb_s3.aws_secret_access_key }} \
        RESTIC_PASSWORD={{ mongodb_s3.restic_password }} \
        restic \
-              -r s3:https://s3.epfl.ch/{{ mongodb_s3_bucket_path }} \
+              -r {{ mongodb_s3_bucket_path }} \
               ls -l latest {{ mongodb_backup_path }}"
   delegate_to: localhost
   run_once: true
