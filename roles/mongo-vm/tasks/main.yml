@@ -50,21 +50,17 @@
     apply:
       tags:
         - never
-        - vm
         - vm.vip
   tags:
-    - vm
     - vm.vip
 
 - include_tasks:
     file: mongo-install.yml
     apply:
       tags:
-        - vm
         - mongo
         - mongo.install
   tags:
-    - vm
     - mongo
     - mongo.install
 
@@ -72,11 +68,9 @@
     file: mongo-setup.yml
     apply:
       tags:
-        - vm
         - mongo
         - mongo.setup
   tags:
-    - vm
     - mongo
     - mongo.setup
 
@@ -84,11 +78,9 @@
     file: mongo-manage.yml
     apply:
       tags:
-        - vm
         - mongo
         - mongo.manage
   tags:
-    - vm
     - mongo
     - mongo.manage
 

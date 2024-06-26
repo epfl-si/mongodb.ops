@@ -1,13 +1,13 @@
 
 - name: upgrade all packages
-  ansible.builtin.dnf: 
+  ansible.builtin.dnf:
     name: '*'
     state: latest
-  when: >- 
+  when: >-
     "vm.os.upgrade" in ansible_run_tags
 
 - name: Convenient packages
-  ansible.builtin.dnf: 
+  ansible.builtin.dnf:
     name: "{{ item }}"
     state: latest
     disable_gpg_check: true
@@ -18,7 +18,7 @@
     - pip
     - https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     - restic
-  
+
 # Allow ansible to manage database
 - name: Install PyMongo
   ansible.builtin.pip:
