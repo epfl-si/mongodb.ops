@@ -15,3 +15,15 @@
     roles: dbOwner
   when: item.key != 'admin'
   loop: "{{ mongodb_db_inventory | dict2items }}"
+
+- name: Update users wuth ip filter authenticationRestrictions
+  community.mongodb.mongodb_shell:
+    login_user: "{{ mongodb_db_inventory.admin.user }}"
+    login_password: "{{ mongodb_db_inventory.admin.password }}"
+    db: "admin"
+    eval: "db.system.users.update( { _id: '{{ item.key }}.{{ item.value.user }}' },{$set: {'authenticationRestrictions': [{ clientSource: {{ item.value.ip_filtered }} }]}})"
+  loop: "{{ mongodb_db_inventory | dict2items }}"
+  when:
+    - item.value.ip_filtered is defined
+    - item.value.ip_filtered | length > 0
+
