@@ -121,6 +121,7 @@
       tags:
         - never
   tags:
+    - tools.aws
     - tools.connect
     - tools.restic
     - tools.vip

@@ -1,6 +1,19 @@
 - tags: always
   include_vars: mongo-vars.yml
 
+- name: Display some aws commands
+  debug:
+    msg:
+    - "AWS_ACCESS_KEY_ID={{ mongodb_s3.aws_access_key_id }} \
+       AWS_SECRET_ACCESS_KEY={{ mongodb_s3.aws_secret_access_key }} \
+       aws --endpoint-url=https://s3.epfl.ch s3 rm s3://{{ mongodb_s3.bucket_name }}/ --recursive"
+    - "AWS_ACCESS_KEY_ID={{ mongodb_s3.aws_access_key_id }} \
+       AWS_SECRET_ACCESS_KEY={{ mongodb_s3.aws_secret_access_key }} \
+       aws --endpoint-url=https://s3.epfl.ch s3 ls s3://{{ mongodb_s3.bucket_name }}/"   
+  run_once: true
+  tags:
+    - tools.aws
+
 - name: Display connection string
   block:
     - name: Which database?

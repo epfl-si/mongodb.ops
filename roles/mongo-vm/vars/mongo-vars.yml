@@ -4,7 +4,8 @@ mongodb_db_inventory: "{{ lookup('file', __mongodb_keybase + __mongodb_db_invent
 
 __mongodb_s3_file: "{{ 'aws-cli-credentials-' + inventory_environment + '.yml' }}"
 mongodb_s3: "{{ lookup('file', __mongodb_keybase + __mongodb_s3_file) | from_yaml }}"
-mongodb_s3_bucket_path: "{{ 's3:https://s3.epfl.ch/' + mongodb_s3.bucket_name + '/mongodb_' + inventory_environment + '_bkp' }}"
+mongodb_s3_dir: "{{ 'mongodb_' + inventory_environment + '_bkp' }}"
+mongodb_s3_bucket_path: "{{ 's3:https://s3.epfl.ch/' + mongodb_s3.bucket_name + '/' +mongodb_s3_dir }}"
 
 mongosh_version: 2.2.6
 mongodb_major_version: 7
