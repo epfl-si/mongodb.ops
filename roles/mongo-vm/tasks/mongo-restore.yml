@@ -7,8 +7,8 @@
     AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
     AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
   ansible.builtin.shell: restic -r {{ mongodb_s3_bucket_path }} restore latest --target {{ mongodb_restore_path }}
-  when: "not vip_active"
+  when: not vip_active
 
 - name: Restore database
-  ansible.builtin.shell: mongorestore  -u {{ mongodb_db_inventory.admin.user }} -p {{ mongodb_db_inventory.admin.password }} --drop {{ mongodb_restore_path }}{{ mongodb_backup_path }}
-  when: "not vip_active"
+  ansible.builtin.shell: mongorestore -u {{ mongodb_db_inventory.admin.user }} -p {{ mongodb_db_inventory.admin.password }} --drop {{ mongodb_restore_path }}{{ mongodb_backup_path }}
+  when: not vip_active
