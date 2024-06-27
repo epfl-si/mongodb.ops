@@ -7,7 +7,10 @@ help () {
 
 Usage:
 
-  $0 --list-tags
+  $0                                # deploy on test
+  $0 --prod                         # deploy on prod
+  $0 --all                          # deploy on test and prod
+  $0 --list-tags                    # list all tags
   $0 [ -t sometag ] [ ... ]
 
 HELP_MSG
