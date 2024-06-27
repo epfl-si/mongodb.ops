@@ -1,19 +1,20 @@
 - tags: always
   include_vars: mongo-vars.yml
 
-- name: Initialization of restic on s3
-  block:
-  - name: Check if repo s3 is initialized
-    environment:
-      RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
-      AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
-      AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r {{ mongodb_s3_bucket_path }} snapshots
-    register: mongodb_s3_init
-  - name: Initialize repo s3 if not initialized
-    environment:
-      RESTIC_PASSWORD: "{{ mongodb_s3.restic_password }}"
-      AWS_ACCESS_KEY_ID: "{{ mongodb_s3.aws_access_key_id }}"
-      AWS_SECRET_ACCESS_KEY: "{{ mongodb_s3.aws_secret_access_key }}"
-    ansible.builtin.shell: restic -r {{ mongodb_s3_bucket_path }} init
-    when: "mongodb_s3_init.stdout != '' and 'snapshots' not in mongodb_s3_init.stdout"
+- name: Restic is initialized on s3
+  shell:
+    cmd: |
+      set -e
+      export RESTIC_PASSWORD="{{ mongodb_s3.restic_password }}"
+      export AWS_ACCESS_KEY_ID="{{ mongodb_s3.aws_access_key_id }}"
+      export AWS_SECRET_ACCESS_KEY="{{ mongodb_s3.aws_secret_access_key }}"
+      set -x
+      if restic -r {{ mongodb_s3_bucket_path }} snapshots; then
+        echo "ALREADY_DONE"
+        exit 0
+      fi
+      restic -r {{ mongodb_s3_bucket_path }} init
+      
+  register: _restic_init
+  changed_when: >-
+    "ALREADY_DONE" not in _restic_init.stdout
