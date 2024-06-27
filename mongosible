@@ -35,6 +35,9 @@ while [ "$#" -gt 0 ]; do
     --help)
       help ;;
     --prod)
+      inventory_mode="prod"
+      shift ;;
+    --all)
       inventory_mode="test-and-prod"
       shift ;;
     *)
@@ -45,8 +48,9 @@ done
 
 inventories () {
   case "$inventory_mode" in
-    test)          echo "-i inventory/inventory-test.yml" ;;
-    test-and-prod) echo "-i inventory/inventory-test.yml -i inventory/inventory-prod.yml" ;;
+    test) echo "-i inventory/inventory-test.yml" ;;
+    prod) echo "-i inventory/inventory-prod.yml" ;;
+    all)  echo "-i inventory/inventory-test.yml -i inventory/inventory-prod.yml" ;;
   esac
 }
 

@@ -11,11 +11,12 @@
     - name: "Use the connection string below to connect to {{ __mongo_db.user_input }}"
       debug:
         msg:
+        - "Use mongosible -t tools.vip to know which VM has the VIP"
         - "mongosh mongodb://{{ mongodb_db_inventory[__mongo_db.user_input].user }}:{{ mongodb_db_inventory[__mongo_db.user_input].password }}@{{ inventory_hostname }}:{{ mongodb_port }}/{{ __mongo_db.user_input }}"
-
+        - "mongosh mongodb://{{ mongodb_db_inventory[__mongo_db.user_input].user }}:{{ mongodb_db_inventory[__mongo_db.user_input].password }}@mongodb{{ '-test' if (inventory_environment != 'prod') else '' }}.epfl.ch:{{ mongodb_port }}/{{ __mongo_db.user_input }}"
     - name: Get DB version
       command:
-          cmd: "mongosh mongodb://{{ mongodb_db_inventory[__mongo_db.user_input].user }}:{{ mongodb_db_inventory[__mongo_db.user_input].password }}@{{ inventory_hostname }}:{{ mongodb_port }}/{{ __mongo_db.user_input }} --eval \"db.version();\""
+          cmd: "mongosh mongodb://{{ mongodb_db_inventory[__mongo_db.user_input].user }}:{{ mongodb_db_inventory[__mongo_db.user_input].password }}@mongodb{{ '-test' if (inventory_environment != 'prod') else '' }}.epfl.ch:{{ mongodb_port }}/{{ __mongo_db.user_input }} --eval \"db.version();\""
       register: __db_version
     - debug:
         var: __db_version.stdout
