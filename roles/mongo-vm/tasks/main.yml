@@ -116,6 +116,15 @@
     - mongo.restore
 
 - include_tasks:
+    file: ssl.yml
+    apply:
+      tags:
+        - never
+  tags:
+    - ssl.private_key
+    - ssl.install_certificate
+
+- include_tasks:
     file: tools.yml
     apply:
       tags:

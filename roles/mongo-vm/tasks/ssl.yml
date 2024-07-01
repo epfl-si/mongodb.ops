@@ -1,0 +1,111 @@
+- tags: always
+  include_vars: mongo-vars.yml
+
+- name: Generate private key
+  block:
+  - name: Create temporary config file
+    ansible.builtin.copy:
+      dest: /tmp/cert-req.cnf
+      content: |
+        [ req ]
+        default_bits = 2048
+        default_md  = sha256
+        prompt = no
+        distinguished_name = dn
+
+        [ dn ]
+        C = CH
+        O = Ecole polytechnique federale de Lausanne (EPFL)
+        CN = {{ ssl_cn }}.epfl.ch
+    register: cert_req_cnf
+  - name: Generate private key
+    ansible.builtin.shell: openssl req -new -nodes -config /tmp/cert-req.cnf -keyout /etc/pki/tls/private/serveur.key -out /tmp/serveur.csr
+    when: cert_req_cnf.changed
+  - name: Change serveur-key permission to 400
+    ansible.builtin.file:
+      path: /etc/pki/tls/private/serveur.key
+      mode: '400'
+    when: cert_req_cnf.changed
+  - name: Copy serveur.key to local /tmp/ssl
+    ansible.builtin.fetch:
+      src: /etc/pki/tls/private/serveur.key
+      dest: /tmp/ssl/serveur.key
+  - name: Display things to do before continue on ssl setup
+    debug:
+      msg:
+        - 'Documentation from : https://inside.epfl.ch/secure-it/nginx-creer-une-csr/'
+        - ''
+        - 'Things left to do:'
+        - '- fill in the form https://rauth.epfl.ch/certReq/ with the data in /tmp/serveur.csr'
+        - '- unzip the zip file received from DigiCert in your /tmp/ssl directory'
+        - '- do not delete the serveur.key present in your /tmp/ssl directory!'
+        - ''
+        - 'To end the ssl installation, run:'
+        - "./mongosible {{ '--prod ' if inventory_environment == 'prod' else '' }}-t install_certificate"
+  run_once: true
+  tags: ssl.private_key
+
+- name: Install certificate
+  block:
+  - name: Copy received certicates from local /tmp/ssl to remote /tmp/
+    ansible.builtin.copy:
+      src: "/tmp/ssl/{{ item }}"
+      dest: "/tmp/{{ item }}"
+    loop:
+      - "DigiCertCA.crt"
+      - "{{ ssl_cn }}_epfl_ch.crt"
+      - "serveur.key"
+  - name: Copy serveur.key to /etc/pki/tls/private
+    ansible.builtin.copy:
+      src: /tmp/serveur.key
+      dest: /etc/pki/tls/private/serveur.key
+      remote_src: yes
+      mode: '400'
+  - name: Create /etc/ssl/mongodb directory with mongod as owner/group
+    ansible.builtin.file:
+      path: /etc/ssl/mongodb
+      state: directory
+      owner: mongod
+      group: mongod
+  - name: Move DigiCertCA.crt to /etc/ssl/mongodb
+    ansible.builtin.copy:
+      src: /tmp/DigiCertCA.crt
+      dest: /etc/ssl/mongodb/DigiCertCA.crt
+      remote_src: yes
+      mode: '644'
+  - name: Create pem file
+    ansible.builtin.shell: "cat /etc/pki/tls/private/serveur.key /tmp/{{ ssl_cn }}_epfl_ch.crt /etc/ssl/mongodb/DigiCertCA.crt > /etc/ssl/mongodb/{{ ssl_cn }}.epfl.ch.pem"
+  - name: Change pem permission to 600
+    ansible.builtin.file:
+      path: "/etc/ssl/mongodb/{{ ssl_cn }}.epfl.ch.pem"
+      mode: '600'
+  - name: Check if ssl already configured in /etc/mongod.conf
+    ansible.builtin.lineinfile:
+      path: /etc/mongod.conf
+      regexp: 'ssl:'
+      state: absent
+    check_mode: yes
+    register: presence
+  - name: Insert ssl config if it doesn't exist in /etc/mongod.conf
+    ansible.builtin.lineinfile:
+      path: /etc/mongod.conf
+      insertafter: "^#   http://docs.mongodb.org/manual/reference/configuration-options/"
+      line: |
+        
+        net:
+          ssl:
+            mode: preferSSL
+            PEMKeyFile: /etc/ssl/mongodb/{{ ssl_cn }}.epfl.ch.pem
+            CAFile: /etc/ssl/mongodb/DigiCertCA.crt
+            allowConnectionsWithoutCertificates: true
+            disabledProtocols: TLS1_0,TLS1_1
+    when: not presence.found
+  - name: Restart mongod
+    ansible.builtin.service:
+      name: mongod
+      state: restarted
+  run_once: true
+  tags: ssl.install_certificate
+    
+
+

@@ -11,3 +11,4 @@ all:
             ansible_user: root
             ansible_python_interpreter: /usr/bin/python3.9
             vip_address: "10.95.81.142"
+            ssl_cn: "mongodb"
