@@ -15,7 +15,7 @@
   when: vip_active
 
 - name: Backup database
-  ansible.builtin.shell: mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backup_path }}
+  ansible.builtin.shell: mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname }}' --out {{ mongodb_backup_path }}
   when: vip_active
 
 - name: Unlock database
@@ -43,12 +43,12 @@
     hour: "*/6"
     user: root
     job: >
-      export CURRENT_DATE=$(date +'%Y%m%d-%H%M%S');
+      export CURRENT_DATE=$(date +'\%Y\%m\%d-\%H\%M\%S');
       YUMINTERACTIVE=0
-      mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backup_path }}/$CURRENT_DATE &&
-      tar --exclude="*.tar.gz" -czvf {{ mongodb_backup_path }}/$CURRENT_DATE.tar.gz {{ mongodb_backup_path }}/$CURRENT_DATE &&
-      rm -rf {{ mongodb_backup_path }}/$CURRENT_DATE
+      mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backups_path }}/$CURRENT_DATE &&
+      tar --exclude="*.tar.gz" -czvf {{ mongodb_backups_path }}/$CURRENT_DATE.tar.gz {{ mongodb_backups_path }}/$CURRENT_DATE &&
+      rm -rf {{ mongodb_backups_path }}/$CURRENT_DATE;
     cron_file: ansible_mongodump
-    state: "{{ 'absent' if not vip_active else 'present' }}"
+    state: "{{ 'present' if vip_active else 'absent' }}"
   tags:
     - mongo.cron
