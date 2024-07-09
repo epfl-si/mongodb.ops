@@ -104,7 +104,6 @@
     ansible.builtin.service:
       name: mongod
       state: restarted
-  run_once: true
   tags: ssl.install_certificate
     
 
