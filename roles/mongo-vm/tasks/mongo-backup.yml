@@ -35,20 +35,41 @@
   ansible.builtin.shell: restic -r {{ mongodb_s3_bucket_path }} backup {{ mongodb_backup_path }}
   when: vip_active
 
-- name: Install the MongoDB cron file under /etc/cron.d
+- name: Create 'week' and 'month' backups directories
+  ansible.builtin.file:
+    path: "{{ mongodb_backups_path }}/{{ item }}"
+    state: directory
+  loop:
+    - week
+    - month
+  when: vip_active
+  tags:
+    - mongo.cron
+
+- name: Manage backups cron file under /etc/cron.d
   ansible.builtin.cron:
-    name: MongoDB backup
-    weekday: "*"
+    name: "{{ item.name }}"
     minute: "0"
-    hour: "*/6"
+    hour: "{{ item.hour }}"
+    weekday: "{{ item.weekday }}"
     user: root
-    job: >
-      export CURRENT_DATE=$(date +'\%Y\%m\%d-\%H\%M\%S');
-      YUMINTERACTIVE=0
-      mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backups_path }}/$CURRENT_DATE &&
-      tar --exclude="*.tar.gz" -czvf {{ mongodb_backups_path }}/$CURRENT_DATE.tar.gz {{ mongodb_backups_path }}/$CURRENT_DATE &&
-      rm -rf {{ mongodb_backups_path }}/$CURRENT_DATE;
-    cron_file: ansible_mongodump
+    job: "{{ item.job }}"
+    cron_file: "ansible_mongodump"
     state: "{{ 'present' if vip_active else 'absent' }}"
+  loop:
+    - { name: 'MongoDB 4 times daily backups', hour: '*/6', weekday: "*",
+        job: "export CURRENT_DATE=$(date +'\\%Y\\%m\\%d-\\%H\\%M\\%S');
+        YUMINTERACTIVE=0
+        mongodump --uri='mongodb://{{ mongodb_db_inventory.admin.user }}:{{ mongodb_db_inventory.admin.password }}@{{ inventory_hostname}}' --out {{ mongodb_backups_path }}/$CURRENT_DATE &&
+        tar --exclude='*.tar.gz' -czvf {{ mongodb_backups_path }}/$CURRENT_DATE.tar.gz {{ mongodb_backups_path }}/$CURRENT_DATE &&
+        rm -rf {{ mongodb_backups_path }}/$CURRENT_DATE;" }
+    - { name: 'MongoDB keep 1 backup per day for a week in /week', hour: '22', weekday: "*",
+        job : "mv `find {{ mongodb_backups_path }} -maxdepth 1 -type f -mtime +1 -name '*.gz' | head -1` {{ mongodb_backups_path }}/week/ &&
+        find {{ mongodb_backups_path }} -maxdepth 1 -type f -mtime +1 -name '*.gz' -delete" }
+    - { name: 'MongoDB keep 1 backup per week in /month', hour: '23', weekday: "0",
+        job : "mv `find {{ mongodb_backups_path }}/week -maxdepth 1 -type f -mtime +7 -name '*.gz' | head -1` {{ mongodb_backups_path }}/month/ &&
+        find {{ mongodb_backups_path }}/week -maxdepth 1 -type f -mtime +7 -name '*.gz' -delete" }
+    - { name: 'MongoDB remove backups older than 1 year from /month', hour: '3', weekday: "*",
+        job : "find /srv/mongo/backups/month -maxdepth 1 -type f -mtime +365 -name '*.gz' -delete" }
   tags:
     - mongo.cron
