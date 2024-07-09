@@ -5,13 +5,13 @@ Ansible automation and other “ops” assets for the MongoDB hosting service.
 ## About
 
 This repository contains the Ansible script to setup a MongoDB Community Edition
-server on a RHEL virtual machine. It use the [Ansible Suitcase], a portable
+server on a RHEL virtual machine. It uses the [Ansible Suitcase], a portable
 Ansible wrapped in a shell script called [mongosible](./mongosible). Among
 others, it uses the [community.mongodb] collection.
 
 ## Prerequisites
 
-In order to be able to run the [mongosible](./mongosible) script, acess to the
+In order to be able to run the [mongosible](./mongosible) script, access to
 `/keybase/team/epfl_mongodb` directory is required. In addition, you need to be
 within the EPFL network.
 
@@ -30,29 +30,29 @@ the test environment. Use `--prod` to start sweating.
 ### Setup the VM
 
 The following tasks will install the prerequisites on the VMs:
-  - `vm-access.yml` ensure that SSH keys from `access-vars.yml` are installed
-  - `vm-os.yml` use the [ansible.builtin.dnf] module to upgrade everything and
+  - `vm-access.yml` ensures that SSH keys from `access-vars.yml` are installed
+  - `vm-os.yml` uses the [ansible.builtin.dnf] module to upgrade everything and
     install some convenient or needed packages such as `nmap`, `tmux`, `pip` or
     `restic`.
-  - `vm-lvm.yml` setup the volume group, the logical volumes, format them in XFS
-    (as strongly recommended by MongoDB[^1]) and mount them in the storage path.
+  - `vm-lvm.yml` setups the volume group, the logical volumes, formats them in XFS
+    (as strongly recommended by MongoDB[^1]) and mounts them in the storage path.
 
-Theses tasks can be ran with the `-t vm` tag.
+These tasks can be ran with the `-t vm` tag.
 
 ### Install and manage MongoDB
 
-This group of file manage the installation, the configuration and the setup of
+This group of files manages the installation, the configuration and the setup of
 the MongoDB application.
 
   - `mongo-install.yml` actually install a pinned version of MongoDB (defined as
     `mongodb_version` in the `mongo-vars.yml` file). Ensure that this version
     will not change with upgrade commands.
-  - `mongo-setup.yml` configure and setup the MongoDB parameters by changing the
-    `/etc/mongod.conf` file. It creates a user with a root role, enable the
-    MongoDB authentification and change the MongoDB storage path.
-  - `mongo-manage.yml` create the users for every databases.
+  - `mongo-setup.yml` configures and setups the MongoDB parameters by changing the
+    `/etc/mongod.conf` file. It creates a user with a root role, enables the
+    MongoDB authentification and changes the MongoDB storage path.
+  - `mongo-manage.yml` creates the users for every databases.
 
-Theses tasks can be ran with the `-t mongo` tag.
+These tasks can be ran with the `-t mongo` tag.
 
 At this point, one would be able to connect to a specific database. Also see
 [dev scripts](#dev-scripts) below.
@@ -63,7 +63,8 @@ The following tasks are made to manage backups lifecycle.
 
   - `mongo-backup.yml` use `db.fsyncLock()`, `mongodump` and `db.fsyncUnlock()`
      to create a backup and save it on S3 with [restic]. Also install a crontab
-     for local backup every 6 hours.
+     for local backups every 6 hours, and keep 1 backup per day for a week,
+     and 1 backup per week for a month, and remove backups older than 1 year.
   - `mongo-restore.yml` will restore the latest backup.
 
 Use the `-t mongo.backup`, `-t mongo.unlock`, `-t mongo.restore` tags to achieve
@@ -88,7 +89,7 @@ backups tasks) and the `vm-vip.yml` task does the switch with the proper
 
 ### Tools
 
-In addition to the others tasks, `tools.yml` provide some tools dedicated to the
+In addition to the others tasks, `tools.yml` provides some tools dedicated to the
 operators work.
 
   - `tools.connect` will display the connection string to connect to one of the
@@ -98,7 +99,7 @@ operators work.
 
 ### dev-scripts
 
-This directory contain the `export-import.sh` shell script that one operator can
+This directory contains the `export-import.sh` shell script that an operator can
 use for an initial import from a MongoDB database hosted elsewhere.
 
 ## Contributing
