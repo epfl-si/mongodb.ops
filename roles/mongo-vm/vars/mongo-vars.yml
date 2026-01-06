@@ -10,7 +10,7 @@ mongodb_s3_bucket_path: "{{ 's3:https://s3.epfl.ch/' + mongodb_s3.bucket_name + 
 mongosh_version: 2.2.6
 mongodb_major_version: 7
 __mongodb_minor_version: 0
-__mongodb_patch_version: 11
+__mongodb_patch_version: 28
 mongodb_version: "{{ mongodb_major_version }}.{{ __mongodb_minor_version }}.{{ __mongodb_patch_version}}"
 mongodb_port: 27017
 mongodb_storage_path: /srv/mongo/data
